@@ -1,0 +1,346 @@
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h> //usado no system('cls')
+
+#define MAX_ALUNOS 30
+#define NUM_AULAS 36
+int n_alunos = 1;
+int n_atualAlunos = 0;
+int matriculas[MAX_ALUNOS];
+int faltas[MAX_ALUNOS];
+float notas[MAX_ALUNOS][4];
+
+float alunos[MAX_ALUNOS][6]; // matriz que armazenara todos os dados de uma vez
+
+// estrutura para armazenar informações do aluno
+struct Aluno {
+  int matricula;
+  float notas[4];
+  int faltas;
+};
+
+struct Aluno matriculasT[MAX_ALUNOS];  // cria um vetor do tipo Aluno que vai conter todos os parametros presente na struct Aluno.
+
+/* como a função cadastrarAluno é do tipo void, ela nao precisa de um retorno
+ (return). nessafunção ela não estava armazenando as matriculas passadas dentro
+ do vetor matriculas. Foi criado uma variavel de controle e arrumar a validação
+ da inclusão e matricula.
+*/
+
+void cadastrarAluno(void) {
+  if (n_alunos >= MAX_ALUNOS) {
+    printf("Erro: nao e possivel cadastrar mais alunos.\n");
+  } else {
+
+    int matricula;
+    int controlador; // variavel que fara o controle do numero de alunos
+                     // cadastrados.
+
+    // esse for mais externo é responsável por armazenar na posição correta as
+    // matriculas seguindo a ordem em que foram passadas
+    for (int i = n_atualAlunos; i < n_alunos; i++) {
+
+      printf("Digite a matricula do aluno: ");
+      scanf("%d", &matricula);
+
+      // esse for mais interno é responsável por verificar se uma determinada
+      // matricula ja foi cadastrada.
+      for (int k = 0; k < n_alunos; k++) {
+
+        // verifica se a matricula ja foi cadastrada
+        if (matriculas[k] != -1) {
+          if (matriculas[k] == matricula) {
+            printf("\nMatricula ja cadastrada.\n");
+            controlador = 0;
+            break;
+          }
+        } else {
+          // caso a matricula não tenha sido cadastrada, ela é armazenada na
+          // posição correta. e o controlador recebe 1 indicando que foi feito o
+          // cadastro.
+          matriculas[i] = matricula;
+          controlador = 1;
+          printf("\n🎆🎇🎇🎆matricula cadastrada com sucesso🎆🎇🎇🎆\n");
+        }
+      }
+    }
+    // com o cadastro sendo feito o n_AtualAluno é acrescido de mais 1 assim
+    // como o n_Alunos que no caso é a quantidade total de alunos cadastrados
+    if (controlador == 1) {
+      n_atualAlunos++;
+      n_alunos++;
+    }
+  }
+}
+
+/*
+
+pelo que vi dessas funções abaixo você não esta declarando nenhuma função, pois
+as funções são declaradas da seguinte forma: -tipo da função- NomeDaFunção
+(parametros (caso não exista parametros, basta escrever void)){
+       --- comandos da função ---
+        }
+        recomendo você revisar como se controi uma função em C, para poder fazer
+todas funcionarem corretamente.
+*/
+
+// Função para remover um aluno
+void removerAluno(void) {
+  if (n_alunos == 0) {
+    printf("Erro: nenhum aluno cadastrado.\n");
+  }
+
+  int matricula;
+  printf("Digite a matricula do aluno a ser removido: ");
+  scanf("%d", &matricula);
+
+  int index = -1;
+  for (int i = 0; i < n_alunos; i++) {
+    if (matriculas[i] == matricula) {
+      index = i;
+      break;
+    }
+  }
+  if (index == -1) {
+    printf("Erro: matricula nao encontrada.\n");
+    return;
+  }
+
+  // Remover o aluno e reorganizar o vetor
+  for (int i = index; i < n_alunos - 1; i++) {
+    matriculas[i] = matriculas[i + 1];
+    faltas[i] = faltas[i + 1];
+    for (int j = 0; j < 4; j++) {
+      notas[i][j] = notas[i + 1][j];
+    }
+  }
+  n_alunos--;
+  printf("O Aluno com a matricula: %d foi removido com sucesso.\n", matricula);
+}
+
+// Função para atualizar os dados de um aluno
+/*
+ * nessa função você queria usar o struct que você criou dentro de um vetor, contudo da forma como seu codigo vem sendo escrito isso não vai funcionar aqui
+ * pq não haverá relação entre as estruturas. Por isso nesse caso aqui o recomendado é você utilizar os vetores notas e falta que você criou, porem creio que o
+ * melhor é você criar uma matriz unica que vai armazenar todos os dados (no caso eu criei a matriz alunos), então e você obtar por esse metodo você tera que 
+ * modificar todas as demias funções anteriores, porem creio eu que ficará mais facil. Assim sendo, vou modificar essa função de modo que ela utilize a matriz
+ * alunos. Assim como na função cadastrar a matriz tera que ser inicializada para que funcione de maneira correta. Esse metodo tambem vai reduzir bastante o 
+ * uso dos verores e diminuir o uso de memoria.
+*/
+  void atualizarDados(void) {
+    if(n_alunos == 1){
+      printf("\n❌❌Não existem alunos cadastrados❌❌\n");
+      return;
+    }
+      
+    int i, encontrado = 0, contador=0;
+	float matricula, faltas; // como a matriz alunos é do tipo float, ela só vai aceitar a entrada de dados que tambem sejam do tipo float.
+	
+    printf("\nDigite a matricula do aluno: ");
+    scanf("%f", &matricula);
+    
+    for ( i = 0; i < n_atualAlunos; i++) {
+       if (matricula == matriculas[i]) {
+            encontrado = 1;
+            alunos[i][0] = matricula; // a primeira linha da matriz e a primeira coluna recebe a matricula do aluno encontrado,
+            printf("\nDigite as notas do aluno (4 notas):\n");
+            scanf("%f %f %f %f", &alunos[i][1],&alunos[i][2], &alunos[i][3], &alunos[i][4]); //as notas do aluno são colocadas na ordem, mas na mesma linha dentro da matriz
+            printf("\nDigite o numero de faltas do aluno: ");
+            scanf("%f", &alunos[i][5]); // as faltas do aluno são armazenadas na ultima posicão da mesma linha em que a matricula foi inserida.
+            printf("\nDados do aluno atualizados com sucesso.");
+            break;
+        
+    }
+
+      
+
+
+}
+        if (encontrado==0) {
+        printf("\n❌❌Aluno nao encontrado ou não exite.❌❌");
+        printf("%d aaaaaa", encontrado);
+    }
+    }
+/*
+ * bem pela analise do seu codigo, eu notei que você esta tentando usar o struct Aluno que você criou dentro de um vetor, isso é uma ideia muito boa
+ * pq vai "reduzir" a quantidade de vetores do seu codigo e logo vai "diminuir" o uso da memoria. contudo se você fizer desse jeito tera que modificar todas
+ * as demais funções do seu codigo. Primeiro foi necessario declarar o vetor do tipo Aluno, conforme fiz la em cima. e da mesma o vetor matriculasT tera que ser 
+ * inicializado. 
+*/
+/*
+  void atualizarDados(void) {
+    if(n_alunos == 0){
+      printf("Não existem alunos cadastrados");
+    }
+    int matricula, faltas,
+  
+    printf("\nDigite a matricula do aluno: ");
+    scanf("%d", &matricula);
+    
+    for (int i = 0; i < n_atualAlunos; i++) {
+       if (matricula == n_alunos.matricula[i]) {
+            encontrado = 1;
+            matriculasT[i].matricula = matricula; // sera armazenado no vetor matriculasT na posição i no parametro matricula a matricula informada
+            // matriculasT[i]->matricula = matricula;
+            
+             //esse for abaixo ira armazenar dentro do vetor notas definido no struct Aluno cada nota passada na ordem correta
+            for(int j = 0; j < 4; j++){
+				printf("Digite a %d nota: ", i+1);
+				scanf("%f", &matriculasT[i]->notas[j]); 
+			}
+            printf("\nDigite o numero de faltas do aluno: ");
+            scanf("%d", &matriculasT[i]->faltas); // armazena as faltas do aluno dentro do parametro faltas do struct Aluno
+            printf("\nDados do aluno atualizados com sucesso.");
+            break;
+        }
+    
+    if (!encontrado) {
+        printf("\nAluno nao encontrado ou não exite.");
+    }
+}
+*/
+
+
+
+
+void listarAlunos(void) {
+  if (n_alunos == 1) {
+    printf("Não existe cadastrados");
+    return;
+  }
+  // se tiver alkunos faça
+  for (int i = 0; i < n_atualAlunos; i++) {
+    printf("Matricula: %d | Numero de faltas: %.0f | Suas notas respectivamente: %.2f %.2f %.2f %.2f", matriculas[i], alunos[i][5], alunos[i][1], alunos[i][2], alunos[i][3], alunos[i][4] );
+
+  }
+}
+
+/*
+  void listarAprovados(void){
+    float media, soma;
+    int i,j;
+    for (i=0 ; i< 4 ; i++){
+      soma = soma+alunos[i].notas[j];
+    }
+    media = soma/4;
+  }
+*/
+
+/* Função para exibir o menu de opções
+Fiz umas pequenas modificações na sua função exibirMenu fazendo o switch case
+funcionar corretamente, com o uso do comando break dentro de um laço que só é
+interrompido quando se digita a opcao 8. Para que não haja conflito na
+convocação de uma determinada função, sempre recomendo que se declare as funções
+a cima de onde elas são convocadas nesse caso como a função exibirMenu vai
+funcionar como o gerenciador das demais funções, todas as outras funções que ela
+for utilizar devem ser criadas acima dela, conforme eu organizei aqui.
+*/
+void exibirMenu(void) {
+  int opcao;
+  do {
+    printf("\nSelecione uma opcao:\n");
+    printf("1 - Cadastrar aluno\n");
+    printf("2 - Remover aluno\n");
+    printf("3 - Atualizar dados de um aluno\n");
+    printf("4 - Listar alunos cadastrados\n");
+    printf("5 - Listar alunos aprovados\n");
+    printf("6 - Listar alunos reprovados por media\n");
+    printf("7 - Listar alunos reprovados por faltas\n");
+    printf("8 - Sair\n");
+    printf("\n\nDigite alguma opção: \n");
+    scanf("%d", &opcao);
+    system("clear");
+    switch (opcao) {
+    case 1:
+      cadastrarAluno();
+      break;
+    case 2:
+      removerAluno();
+      break;
+    case 3:
+       atualizarDados();
+      break;
+    case 4:
+      listarAlunos();
+      break;
+    case 5:
+      // listaraprovados();
+      break;
+    case 6:
+      // listarreprovmedia();
+      break;
+    case 7:
+      // listarReprovadosPorFaltas();
+      break;
+    case 8:
+      printf("Você escolheu sair!");
+      break;
+    default:
+      printf("Opção não existe, digite outra!");
+      break;
+    }
+  } while (opcao != 8);
+}
+
+// a função principal que no caso é o main vai funcionar apenas por meio da
+// função exibirMenu que faz a convocação das demais funções necessarias. o main
+// sempre deve ser a ultima função do programa.
+int main() {
+
+  // Esse for faz a inicialização do vetor matriculas, pois assim é um jeito
+  // mais facil de percorrer o vetor e fazer as alteracoes dentro do proprio
+  // vetor, pois antes a matricula passada sempre era armazenada na primeira
+  // posição e as demais ficavam vazias. e como não sabemos quantos alunos serão
+  // armazenados, é melhor inicializar o vetor por completo.
+  for (int j = 0; j < MAX_ALUNOS; j++) {
+    matriculas[j] = -1;
+  }
+
+  exibirMenu();
+
+  // esse for não é necessario, mas ele faz tipo um debug, ele mostra os valores
+  // que foram cadatrados dentro do vetor matriculas
+  for (int j = 0; j < n_alunos; j++) {
+
+    // como todo o vetor foi inicializado com -1 para nao ter problemas visual
+    // de exibir -1, esse if os exclui.
+    if (matriculas[j] != -1) {
+      printf("%d\n", matriculas[j]);
+    }
+  }
+  
+  
+  
+/*
+ * esses dois for motram como ira funcionar o processo de leitura e armazenamento dos dados passados e a exibição desses dados no vetor matriculasT que é do 
+ * tipo Aluno, não se difere dos demais metodos porem ao inves de usar um ponto para indicar o local a ser guardado(matriculasT[posição].matricula) é utilizado 
+ * uma setinha (->) para indicar o local a ser armazenado (matriculasT[posição]->matricula). porem na hora da exibição usa-se o ponto conforme é mostrado abaixo.
+ * 
+*/
+  // armazena os dados no vetor
+  for(int a = 0; a < 5; a++){
+		printf("Informe a matricula do aluno: \n");
+		scanf("%d", &matriculasT -> matricula);
+		for(int b = 0; b < 4; b++){
+			printf("Informe a %d nota: ", b+1);
+			scanf("%f", &matriculasT -> notas[b]);
+		}
+		printf("Digite a quantidade de faltas: \n");
+		scanf("%d", &matriculasT -> faltas);
+	}
+	
+	// exibe os dados do vetor
+	for(int c = 0; c < 5; c++){
+		printf("matricula: %d", matriculasT[c].matricula);
+		printf("Notas: ");
+		for(int d = 0; d < n_alunos; d++){
+			printf("%.0f", matriculasT[c].notas[d]);
+		}
+		printf("faltas: %d", matriculasT[c].faltas);
+	}
+  return 0;
+}
+    
+
+
+
